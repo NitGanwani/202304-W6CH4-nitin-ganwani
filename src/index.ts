@@ -1,21 +1,12 @@
+/* eslint-disable radix */
 import http from 'http';
 import url from 'url';
-import { program } from 'commander';
 import * as dotenv from 'dotenv';
+import { calculator } from './calculator.js';
 
 dotenv.config();
 
-const PORT = process.env.PORT || 4444;
-const version = '1.0.0';
-
-program.option('-v, --version');
-program.parse();
-const options = program.opts();
-
-if (options.version) {
-  console.log('Version ' + version);
-  process.exit(0);
-}
+const PORT = process.env.PORT || 7777;
 
 const server = http.createServer((req, res) => {
   if (!req.url) {
@@ -23,14 +14,24 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  const { pathname } = url.parse(req.url);
+  const { pathname, query } = url.parse(req.url, true);
 
   if (req.method !== 'GET') {
     server.emit('error', new Error('Invalid method'));
     return;
   }
 
-  res.write(`<h1>Hola ${pathname!.toUpperCase()}</h1>`);
+  if (pathname !== '/calculator') {
+    res.statusCode = 404;
+    res.end('Error. Not found.');
+    return;
+  }
+
+  const paramA = parseInt(query.paramA as string);
+  const paramB = parseInt(query.paramB as string);
+
+  res.write(`<h1>Calculadora</h1>`);
+  res.write(`<p>${calculator(paramA, paramB)}</p>`);
   res.write(req.method);
   res.write(req.url);
   res.end();
