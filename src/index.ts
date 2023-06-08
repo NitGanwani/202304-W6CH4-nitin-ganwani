@@ -30,10 +30,19 @@ const server = http.createServer((req, res) => {
   const paramA = parseInt(query.paramA as string);
   const paramB = parseInt(query.paramB as string);
 
+  if (isNaN(paramA) || isNaN(paramB)) {
+    res.statusCode = 400;
+    res.end('Error. Invalid numbers');
+    return;
+  }
+
+  const results = calculator(paramA, paramB);
+
   res.write(`<h1>Calculadora</h1>`);
-  res.write(`<p>${calculator(paramA, paramB)}</p>`);
-  res.write(req.method);
-  res.write(req.url);
+  res.write(`<p>${paramA} + ${paramB} = ${results.add}</p>`);
+  res.write(`<p>${paramA} - ${paramB} = ${results.substract}</p>`);
+  res.write(`<p>${paramA} * ${paramB} = ${results.multiply}</p>`);
+  res.write(`<p>${paramA} / ${paramB} = ${results.divide}</p>`);
   res.end();
 });
 
